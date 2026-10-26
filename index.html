@@ -8,9 +8,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,700;1,6..96,700&family=Libre+Franklin:wght@400;600;700;800&display=swap">
-<link rel="stylesheet" href="style.css?v=2">
-<script src="config.js?v=2"></script>
-<script src="fx.js?v=2"></script>
+<link rel="stylesheet" href="style.css?v=3">
+<script src="config.js?v=3"></script>
+<script src="fx.js?v=3"></script>
 </head>
 <body>
 <main class="wrap">
@@ -208,13 +208,13 @@
     lobbyPoll();
   }
   function lobbyPoll() {
-    Promise.all([api({ action: 'state', pid: me.pid }), api({ action: 'board' }).catch(function () { return null; })]).then(function (r) {
-      var st = r[0], b = r[1]; netOk();
+    api({ action: 'state', pid: me.pid, lobby: 1 }).then(function (st) {
+      netOk();
       if (st.session !== me.session) { me = null; store.del('me'); show('s-join'); clearInterval(tipT); lobbyMusic(false); return; }
-      if (b) renderChips(b.list);
-      if (st.status === 'attesa') { poll(lobbyPoll, 2500); return; }
+      if (st.players) renderChips(st.players);
+      if (st.status === 'attesa') { poll(lobbyPoll, 3500 + Math.random() * 1500); return; }
       clearInterval(tipT); applyState(st);
-    }).catch(function () { netErr(); poll(lobbyPoll, 3500); });
+    }).catch(function () { netErr(); poll(lobbyPoll, 4000 + Math.random() * 2000); });
   }
   function renderChips(list) {
     $('l-count').textContent = list.length;
@@ -310,7 +310,15 @@
       var ok = k === r.correct;
       S.streak = ok ? S.streak + 1 : 0;
       result(ok, k < 0, r, i);
-    }).catch(function () { netErr(); if (tries < 4) setTimeout(function () { send(i, k, ms, tries + 1); }, 1500); });
+    }).catch(function () {
+      netErr();
+      // la risposta resta in memoria e viene rinviata finché non arriva (attesa crescente per non intasare)
+      if (tries < 12) { setTimeout(function () { send(i, k, ms, tries + 1); }, Math.min(6000, 1200 * (tries + 1)) + Math.random() * 800); return; }
+      $('e-global').textContent = 'La risposta non è arrivata.';
+      var again = el('button', 'btn pink', 'Invia di nuovo la risposta'); again.type = 'button'; again.style.marginTop = '10px';
+      again.addEventListener('click', function () { again.remove(); send(i, k, ms, 0); });
+      $('q-wait').after(again);
+    });
   }
 
   function result(ok, timeout, r, i) {
@@ -329,10 +337,8 @@
     overlay(ok ? 'ok' : 'ko', nodes);
     if (ok) sfx.correct(); else sfx.wrong();
     b.focus();
-    api({ action: 'board' }).then(function (bd) {
-      var pos = bd.list.findIndex(function (p) { return p.id === me.pid; });
-      if (pos >= 0) rank.textContent = 'Sei al ' + (pos + 1) + '° posto su ' + bd.list.length + ' · ' + S.score + ' pt';
-    }).catch(function () {});
+    if (r.rank) rank.textContent = 'Sei al ' + r.rank + '° posto su ' + r.players + ' · ' + S.score + ' pt';
+    else rank.textContent = S.score + ' pt';
   }
 
   // ---------- fine e classifica ----------
@@ -358,8 +364,8 @@
         return;
       }
       if (b.status === 'attesa' && me) { store.del('me'); location.reload(); return; }
-      poll(loadBoard, 4000);
-    }).catch(function () { netErr(); poll(loadBoard, 5000); });
+      poll(loadBoard, 5000 + Math.random() * 2000);
+    }).catch(function () { netErr(); poll(loadBoard, 6000 + Math.random() * 2000); });
   }
 
   function renderPodium(list) {
