@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Regia Quiz KPI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,700&family=Libre+Franklin:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>
+  .status { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; padding: 6px 12px; border-radius: 999px; background: var(--line); }
+  .status[data-s="in corso"] { background: var(--ok-bg); color: var(--ok); }
+  .status[data-s="chiuso"] { background: var(--ko-bg); color: var(--ko); }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+  .stats { display: flex; flex-wrap: wrap; gap: 24px; }
+  .stat b { display: block; font-family: var(--display); font-size: 40px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .stat span { font-size: 13px; color: var(--muted); }
+  .link { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .link code { flex: 1 1 240px; min-width: 0; overflow-wrap: anywhere; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 14px; }
+  .link .btn { width: auto; padding: 10px 16px; font-size: 15px; }
+  .confirm { border: 2px solid var(--ko); }
+  .board.big li { padding: 14px 18px; }
+  .board.big .who b { font-size: 19px; }
+  .board.big .pts { font-size: 22px; }
+  .bar { height: 5px; background: var(--line); border-radius: 9px; overflow: hidden; margin-top: 6px; }
+  .bar i { display: block; height: 100%; background: var(--navy); }
+  @media (min-width: 900px) { .grid2 { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 22px; align-items: start; } }
+</style>
+<script src="config.js"></script>
+</head>
+<body>
+<main class="wrap wide">
+  <header class="brand">
+    <span class="mf">Regia Quiz KPI</span>
+    <span class="sub">Key Location<br>KPI Training Journey</span>
+  </header>
+
+  <form id="s-pin" class="card" style="max-width:420px" novalidate>
+    <h2>Accesso regia</h2>
+    <div><label for="in-pin">PIN</label><input id="in-pin" type="password" inputmode="numeric" autocomplete="off"></div>
+    <button class="btn" type="submit">Entra</button>
+    <p class="err" id="e-pin" role="alert"></p>
+  </form>
+
+  <div id="s-main" class="grid2" hidden>
+    <aside style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <span class="eyebrow">Stato del gioco</span>
+        <span class="status" id="st" data-s="attesa">In attesa</span>
+        <div class="stats">
+          <div class="stat"><b id="n-players">0</b><span>partecipanti</span></div>
+          <div class="stat"><b id="n-done">0</b><span>hanno finito</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <span class="eyebrow">Comandi</span>
+        <div class="controls">
+          <button class="btn go" id="b-start">Avvia il quiz</button>
+          <button class="btn ghost" id="b-close">Chiudi il gioco</button>
+        </div>
+        <button class="btn ghost" id="b-reset" style="font-size:14px;padding:10px">Nuova partita (azzera)</button>
+        <div id="confirm" class="card confirm" hidden>
+          <p><b>Azzerare la partita?</b> Le partecipanti dovranno rientrare. I risultati di questa partita restano salvati nel foglio Google.</p>
+          <div class="controls"><button class="btn danger" id="b-reset-ok">Sì, azzera</button><button class="btn ghost" id="b-reset-no">Annulla</button></div>
+        </div>
+        <p class="err" id="e-cmd" role="alert"></p>
+      </div>
+      <div class="card">
+        <span class="eyebrow">Link per le ragazze</span>
+        <div class="link"><code id="player-link"></code><button class="btn ghost" id="b-copy" type="button">Copia</button></div>
+      </div>
+    </aside>
+
+    <section>
+      <div class="row" style="justify-content:space-between"><h1 style="margin:0">Classifica</h1><span class="lead" id="upd"></span></div>
+      <ol class="board big" id="board" style="margin-top:14px"></ol>
+      <p class="empty" id="board-empty">Nessuna partecipante ancora. Condividi il link: i nomi appariranno qui man mano che entrano.</p>
+    </section>
+  </div>
+</main>
+
+<script>
+(function () {
+  var API = window.QUIZ_API, $ = function (id) { return document.getElementById(id); };
+  var pin = null, pollT = null;
+  try { pin = sessionStorage.getItem('quizkpi_pin'); } catch (e) {}
+  var LABEL = { 'attesa': 'In attesa', 'in corso': 'Quiz in corso', 'chiuso': 'Gioco chiuso' };
+
+  var link = location.href.replace(/admin\.html.*$/, '');
+  $('player-link').textContent = link;
+  $('b-copy').addEventListener('click', function () {
+    var b = this;
+    navigator.clipboard.writeText(link).then(function () { b.textContent = 'Copiato'; setTimeout(function () { b.textContent = 'Copia'; }, 1500); })
+      .catch(function () { var r = document.createRange(); r.selectNodeContents($('player-link')); var s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  });
+
+  function api(cmd) {
+    var url = API + '?action=admin&pin=' + encodeURIComponent(pin) + (cmd ? '&cmd=' + cmd : '');
+    return fetch(url, { cache: 'no-store' }).then(function (r) { return r.json(); });
+  }
+
+  function render(b) {
+    var st = $('st'); st.dataset.s = b.status; st.textContent = LABEL[b.status] || b.status;
+    $('b-start').disabled = b.status === 'in corso';
+    $('b-close').disabled = b.status !== 'in corso';
+    $('n-players').textContent = b.list.length;
+    $('n-done').textContent = b.list.filter(function (p) { return p.done >= b.total; }).length;
+    $('upd').textContent = 'aggiornata alle ' + new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    var ol = $('board'); ol.innerHTML = '';
+    $('board-empty').hidden = b.list.length > 0;
+    b.list.forEach(function (p, i) {
+      var li = document.createElement('li');
+      var pos = document.createElement('span'); pos.className = 'pos'; pos.textContent = i + 1;
+      var who = document.createElement('span'); who.className = 'who';
+      var n = document.createElement('b'); n.textContent = p.name;
+      var s = document.createElement('span'); s.textContent = p.store + ' · ' + p.right + ' giuste su ' + p.done;
+      var bar = document.createElement('div'); bar.className = 'bar';
+      var fill = document.createElement('i'); fill.style.width = Math.round(100 * p.done / b.total) + '%'; bar.appendChild(fill);
+      who.appendChild(n); who.appendChild(s); who.appendChild(bar);
+      var pts = document.createElement('span'); pts.className = 'pts'; pts.textContent = p.score;
+      var sm = document.createElement('small'); sm.textContent = p.done + '/' + b.total; pts.appendChild(sm);
+      li.appendChild(pos); li.appendChild(who); li.appendChild(pts); ol.appendChild(li);
+    });
+  }
+
+  function refresh() {
+    clearTimeout(pollT);
+    api('').then(function (b) {
+      if (!b.ok) { logout(b.error); return; }
+      $('e-cmd').textContent = ''; render(b);
+      pollT = setTimeout(refresh, 3000);
+    }).catch(function () { $('e-cmd').textContent = 'Connessione assente: riprovo…'; pollT = setTimeout(refresh, 4000); });
+  }
+
+  function cmd(c) {
+    $('e-cmd').textContent = '';
+    ['b-start', 'b-close', 'b-reset', 'b-reset-ok'].forEach(function (id) { $(id).disabled = true; });
+    api(c).then(function (b) {
+      $('b-reset').disabled = false; $('b-reset-ok').disabled = false;
+      if (!b.ok) { $('e-cmd').textContent = b.error; return; }
+      $('confirm').hidden = true; render(b); refresh();
+    }).catch(function () { $('b-reset').disabled = false; $('b-reset-ok').disabled = false; $('e-cmd').textContent = 'Comando non arrivato: controlla la connessione e riprova.'; refresh(); });
+  }
+
+  function logout(msg) {
+    try { sessionStorage.removeItem('quizkpi_pin'); } catch (e) {}
+    pin = null; $('s-main').hidden = true; $('s-pin').hidden = false; $('e-pin').textContent = msg || '';
+  }
+
+  function enter() { $('s-pin').hidden = true; $('s-main').hidden = false; refresh(); }
+
+  $('s-pin').addEventListener('submit', function (e) {
+    e.preventDefault();
+    pin = $('in-pin').value.trim(); if (!pin) return;
+    if (!API || API.indexOf('http') !== 0) { $('e-pin').textContent = 'Manca l\'URL di Apps Script nel file config.js.'; return; }
+    api('').then(function (b) {
+      if (!b.ok) { $('e-pin').textContent = b.error; return; }
+      try { sessionStorage.setItem('quizkpi_pin', pin); } catch (e) {}
+      enter();
+    }).catch(function () { $('e-pin').textContent = 'Connessione assente o URL errato in config.js.'; });
+  });
+  $('b-start').addEventListener('click', function () { cmd('start'); });
+  $('b-close').addEventListener('click', function () { cmd('close'); });
+  $('b-reset').addEventListener('click', function () { $('confirm').hidden = false; });
+  $('b-reset-no').addEventListener('click', function () { $('confirm').hidden = true; });
+  $('b-reset-ok').addEventListener('click', function () { cmd('reset'); });
+
+  if (pin) enter();
+})();
+</script>
+</body>
+</html>
