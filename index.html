@@ -8,9 +8,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,700;1,6..96,700&family=Libre+Franklin:wght@400;600;700;800&display=swap">
-<link rel="stylesheet" href="style.css?v=3">
-<script src="config.js?v=3"></script>
-<script src="fx.js?v=3"></script>
+<link rel="stylesheet" href="style.css?v=4">
+<script src="config.js?v=4"></script>
+<script src="fx.js?v=4"></script>
 </head>
 <body>
 <main class="wrap">
@@ -298,7 +298,7 @@
   }
 
   function send(i, k, ms, tries) {
-    api({ action: 'answer', pid: me.pid, q: i, c: k, ms: ms }).then(function (r) {
+    api({ action: 'answer', pid: me.pid, q: i, r: k, ms: ms }).then(function (r) {
       netOk();
       if (!r.ok) {
         if (/chiuso/.test(r.error)) { finish(true); return; }
