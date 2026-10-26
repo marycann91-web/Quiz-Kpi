@@ -3,22 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1e3a5f">
-<title>Quiz Finale KPI</title>
+<meta name="theme-color" content="#1c1a1b">
+<title>Quiz Finale KPI · Fiorella Rubino</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,700&family=Libre+Franklin:wght@400;600;700;800&display=swap">
-<link rel="stylesheet" href="style.css">
-<script src="config.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,700;1,6..96,700&family=Libre+Franklin:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="style.css?v=2">
+<script src="config.js?v=2"></script>
+<script src="fx.js?v=2"></script>
 </head>
 <body>
 <main class="wrap">
   <header class="brand">
-    <span class="mf">Quiz KPI</span>
-    <span class="sub">Key Location<br>KPI Training Journey</span>
+    <div class="logo"><b>Fiorella Rubino</b><span>Quiz finale KPI</span></div>
+    <button class="icon-btn" id="b-mute" type="button"></button>
   </header>
 
-  <!-- configurazione mancante -->
   <section id="s-config" class="card" hidden>
     <h2>Quiz non ancora collegato</h2>
     <p class="lead">Manca l'indirizzo del foglio Google nel file config.js.</p>
@@ -26,43 +26,68 @@
 
   <!-- ingresso -->
   <section id="s-join" hidden>
-    <h1>Pronte per la sfida finale?</h1>
-    <p class="lead" style="margin-top:10px">12 domande su CR, ASP, ATV, UPT, MS e SPH. Più rispondi in fretta, più punti fai.</p>
-    <form id="f-join" class="card" style="margin-top:18px" novalidate>
-      <div><label for="in-name">Nome e cognome</label><input id="in-name" type="text" autocomplete="name" maxlength="40" required></div>
+    <h1>La sfida finale sui <em>KPI</em></h1>
+    <p class="lead" style="margin-top:10px">12 domande su CR, ASP, ATV, UPT, MS e SPH. Risposta giusta e veloce = più punti!</p>
+    <form id="f-join" class="card" style="margin-top:16px" novalidate>
+      <div>
+        <label id="l-av">Scegli il tuo avatar</label>
+        <div class="avatars" id="avatars" role="group" aria-labelledby="l-av"></div>
+      </div>
+      <div><label for="in-name">Nome</label><input id="in-name" type="text" autocomplete="given-name" maxlength="30" required></div>
       <div><label for="in-store">Negozio</label><input id="in-store" type="text" maxlength="40" placeholder="Es. Verona Adigeo" required></div>
-      <button class="btn" id="b-join" type="submit">Entra nel gioco</button>
+      <button class="btn pink" id="b-join" type="submit">Entra in gioco</button>
       <p class="err" id="e-join" role="alert"></p>
     </form>
   </section>
 
   <!-- sala d'attesa -->
-  <section id="s-lobby" class="card" hidden>
-    <div class="row"><span class="pulse" aria-hidden="true"></span><h2>Ci sei, <span id="l-name"></span>!</h2></div>
-    <p class="lead">Il quiz partirà quando lo avvieranno Marilena e Lorenzo. Tieni questa pagina aperta.</p>
-    <div class="kpis"><span class="kpi" data-k="CR">CR</span><span class="kpi" data-k="ASP">ASP</span><span class="kpi" data-k="ATV">ATV</span><span class="kpi" data-k="UPT">UPT</span><span class="kpi" data-k="MS">MS</span><span class="kpi" data-k="SPH">SPH</span></div>
+  <section id="s-lobby" hidden>
+    <div class="card lobby-hero">
+      <div class="big-av" id="l-av-big"></div>
+      <h1 style="font-size:34px">Ci sei, <em id="l-name"></em>!</h1>
+      <p class="lead">Aspettiamo il via di Marilena e Lorenzo<span class="dots"></span></p>
+      <div class="kpis"><span class="kpi">CR</span><span class="kpi">ASP</span><span class="kpi">ATV</span><span class="kpi">UPT</span><span class="kpi">MS</span><span class="kpi">SPH</span></div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <span class="eyebrow">Ripassino lampo</span>
+      <p id="l-tip" style="font-weight:700"></p>
+    </div>
+    <h2 style="margin-top:20px;text-align:center"><span id="l-count">0</span> in sala</h2>
+    <div class="chips" id="l-chips" style="margin-top:10px"></div>
   </section>
 
   <!-- domanda -->
   <section id="s-q" hidden>
-    <div class="card">
-      <div class="qhead"><span class="kpi" id="q-kpi"></span><span class="qnum" id="q-num"></span></div>
-      <div class="timer" id="q-timer"><i id="q-bar"></i></div>
+    <div class="scorebar"><span id="sb-name"></span><b id="sb-score">0 pt</b></div>
+    <div class="card" style="margin-top:12px">
+      <div class="qhead">
+        <span class="kpi" id="q-kpi"></span>
+        <span class="qnum">Domanda <span id="q-n"></span> <small>di <span id="q-tot"></span></small></span>
+        <div class="clock" id="q-clock" aria-hidden="true">
+          <svg viewBox="0 0 64 64"><circle class="trk" cx="32" cy="32" r="27"/><circle class="arc" id="q-arc" cx="32" cy="32" r="27" stroke-dasharray="169.6" stroke-dashoffset="0"/></svg>
+          <b id="q-sec"></b>
+        </div>
+      </div>
       <p class="qtext" id="q-text"></p>
     </div>
+    <p class="ready" id="q-ready" style="margin-top:14px">Leggi bene<span class="dots"></span></p>
     <div class="answers" id="q-ans" style="margin-top:12px"></div>
-    <div id="q-verdict" class="verdict" style="margin-top:12px" hidden></div>
-    <button class="btn" id="b-next" style="margin-top:12px" hidden>Prossima domanda</button>
+    <p class="wait" id="q-wait" style="margin-top:12px" hidden>Risposta inviata! Vediamo<span class="dots"></span></p>
   </section>
 
   <!-- fine -->
   <section id="s-end" hidden>
-    <div class="card">
+    <div class="card" style="text-align:center;align-items:center">
       <span class="eyebrow" id="end-title">Hai finito!</span>
       <div class="score-big" id="end-score">0</div>
-      <p class="lead" id="end-sub"></p>
+      <p class="lead" id="end-sub">punti totali</p>
+      <p class="wait" id="end-wait">Aspetta la classifica finale<span class="dots"></span></p>
     </div>
-    <h2 style="margin-top:22px">Classifica live</h2>
+    <div id="podium-box" class="card" style="margin-top:14px" hidden>
+      <span class="eyebrow" style="text-align:center">Il podio</span>
+      <div class="podium" id="podium"></div>
+    </div>
+    <h2 style="margin-top:20px">Classifica</h2>
     <ol class="board" id="board" style="margin-top:10px"></ol>
     <p class="empty" id="board-empty" hidden>La classifica appare qui appena arrivano i primi punteggi.</p>
   </section>
@@ -70,24 +95,41 @@
   <p class="err" id="e-global" role="alert"></p>
 </main>
 
+<div class="overlay" id="ov" hidden><div class="inner" id="ov-inner"></div></div>
+
 <script>
 (function () {
-  var API = window.QUIZ_API;
+  var API = window.QUIZ_API, FX = window.FX, sfx = FX.sfx;
   var $ = function (id) { return document.getElementById(id); };
   var SHAPES = ['◆', '●', '▲', '■'];
+  var AVATARS = ['👗', '👠', '👜', '💄', '🌸', '☀️', '💎', '🛍️'];
+  var TIPS = [
+    'CR = scontrini / ingressi × 100',
+    'ASP = incasso / pezzi venduti',
+    'ATV = incasso / scontrini',
+    'UPT = pezzi / scontrini',
+    'MS = scontrini multipli / scontrini totali × 100',
+    'SPH = incasso / ore lavorate',
+    '"Ti lascio guardare, poi scegliamo insieme cosa può valorizzarti!"',
+    'Prima della cassa: c\'è un\'idea che completa il look?',
+    'Racconta il valore prima del prezzo: vestibilità, tessuto, dettagli.'
+  ];
+  var CHEER_OK = ['Sei una forza!', 'Da vera Sales Advisor!', 'Brava, avanti così!', 'Che colpo!', 'Il KPI ti ringrazia!', 'Applausi!'];
+  var CHEER_KO = ['Niente paura, la prossima è tua!', 'Si impara anche così!', 'Respira e riparti!', 'Ci rifacciamo subito!'];
   var store = {
     get: function (k) { try { return JSON.parse(localStorage.getItem('quizkpi_' + k)); } catch (e) { return null; } },
     set: function (k, v) { try { localStorage.setItem('quizkpi_' + k, JSON.stringify(v)); } catch (e) {} },
     del: function (k) { try { localStorage.removeItem('quizkpi_' + k); } catch (e) {} }
   };
-  var me = store.get('me'); // {pid, session, name, store}
-  var S = { questions: null, answered: {}, idx: -1, score: 0, timer: null, t0: 0, busy: false, status: '' };
-  var pollT = null;
+  var me = store.get('me');
+  var S = { questions: null, answered: {}, idx: -1, score: 0, streak: 0, timer: null, t0: 0, busy: false, counted: false, podiumShown: false, chipsSeen: {} };
+  var pollT = null, av = AVATARS[0];
 
-  function show(id) {
-    ['s-config', 's-join', 's-lobby', 's-q', 's-end'].forEach(function (s) { $(s).hidden = s !== id; });
-    window.scrollTo(0, 0);
-  }
+  FX.bindMute($('b-mute'));
+
+  function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+  function split(n) { n = String(n || ''); var i = n.indexOf(' '); if (i > 0 && i <= 4 && /[^\w\sÀ-ÿ'.-]/.test(n.slice(0, i))) return { av: n.slice(0, i), nm: n.slice(i + 1) }; return { av: '🙂', nm: n }; }
+  function show(id) { ['s-config', 's-join', 's-lobby', 's-q', 's-end'].forEach(function (s) { $(s).hidden = s !== id; }); window.scrollTo(0, 0); }
   function api(params) {
     var q = Object.keys(params).map(function (k) { return k + '=' + encodeURIComponent(params[k]); }).join('&');
     return fetch(API + '?' + q, { cache: 'no-store' }).then(function (r) { return r.json(); });
@@ -95,58 +137,108 @@
   function poll(fn, ms) { clearTimeout(pollT); pollT = setTimeout(fn, ms); }
   function netErr() { $('e-global').textContent = 'Connessione lenta: riprovo…'; }
   function netOk() { $('e-global').textContent = ''; }
+  function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+
+  // ---------- overlay ----------
+  function overlay(cls, nodes) {
+    var o = $('ov'), inn = $('ov-inner'); o.className = 'overlay ' + (cls || ''); inn.innerHTML = '';
+    nodes.forEach(function (n) { inn.appendChild(n); }); o.hidden = false;
+  }
+  function closeOverlay() { $('ov').hidden = true; }
+
+  function countdown(done) {
+    var steps = ['Pronte?', '3', '2', '1', 'Via!'], i = 0;
+    (function next() {
+      if (i >= steps.length) { closeOverlay(); done(); return; }
+      var s = steps[i++], big = /^\d$/.test(s);
+      overlay(i % 2 ? 'pink' : '', [el('div', big ? 'count' : 'ov-title', s)]);
+      if (big) sfx.beep(); else if (s === 'Via!') sfx.go();
+      setTimeout(next, s === 'Pronte?' ? 1300 : 850);
+    })();
+  }
 
   if (!API || API.indexOf('http') !== 0) { show('s-config'); return; }
+
+  // ---------- avatar ----------
+  AVATARS.forEach(function (a, i) {
+    var b = el('button', 'av', a); b.type = 'button'; b.setAttribute('aria-pressed', i === 0 ? 'true' : 'false'); b.setAttribute('aria-label', 'Avatar ' + a);
+    b.addEventListener('click', function () {
+      av = a; sfx.unlock(); sfx.pop();
+      Array.prototype.forEach.call($('avatars').children, function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+    });
+    $('avatars').appendChild(b);
+  });
 
   // ---------- avvio ----------
   function boot() {
     api({ action: 'state', pid: me ? me.pid : '' }).then(function (st) {
       netOk();
       if (me && (st.session !== me.session || !st.me)) { me = null; store.del('me'); }
-      if (!me) { if (st.status === 'chiuso') { showClosedNoPlayer(); return; } show('s-join'); return; }
+      if (!me) { if (st.status === 'chiuso') { finish(true); return; } show('s-join'); return; }
       applyState(st);
     }).catch(function () { netErr(); poll(boot, 3000); });
   }
 
-  function showClosedNoPlayer() {
-    show('s-end'); $('end-title').textContent = 'Il gioco è chiuso'; $('end-score').textContent = '–';
-    $('end-sub').textContent = 'Ecco la classifica finale.'; loadBoard(false);
-  }
-
   function applyState(st) {
-    S.status = st.status;
     if (st.me) { S.score = st.me.score || 0; st.me.answered.forEach(function (i) { S.answered[i] = true; }); }
-    if (st.status === 'attesa') { $('l-name').textContent = me.name.split(' ')[0]; show('s-lobby'); poll(lobbyPoll, 2500); return; }
+    var p = split(me.name);
+    $('sb-name').textContent = p.av + ' ' + p.nm;
+    if (st.status === 'attesa') { enterLobby(); return; }
     S.questions = st.questions;
     if (st.status === 'chiuso') { finish(true); return; }
-    nextQuestion();
+    if (!Object.keys(S.answered).length && !S.counted) { S.counted = true; show('s-lobby'); countdown(nextQuestion); }
+    else nextQuestion();
   }
 
+  // ---------- sala d'attesa ----------
+  var tipI = Math.floor(Math.random() * TIPS.length), tipT = null;
+  function enterLobby() {
+    var p = split(me.name);
+    $('l-av-big').textContent = p.av; $('l-name').textContent = p.nm.split(' ')[0];
+    show('s-lobby');
+    clearInterval(tipT); $('l-tip').textContent = TIPS[tipI % TIPS.length];
+    tipT = setInterval(function () { tipI++; $('l-tip').textContent = TIPS[tipI % TIPS.length]; }, 5000);
+    lobbyPoll();
+  }
   function lobbyPoll() {
-    api({ action: 'state', pid: me.pid }).then(function (st) {
-      netOk();
-      if (st.session !== me.session) { me = null; store.del('me'); show('s-join'); return; }
+    Promise.all([api({ action: 'state', pid: me.pid }), api({ action: 'board' }).catch(function () { return null; })]).then(function (r) {
+      var st = r[0], b = r[1]; netOk();
+      if (st.session !== me.session) { me = null; store.del('me'); show('s-join'); clearInterval(tipT); return; }
+      if (b) renderChips(b.list);
       if (st.status === 'attesa') { poll(lobbyPoll, 2500); return; }
-      applyState(st);
+      clearInterval(tipT); applyState(st);
     }).catch(function () { netErr(); poll(lobbyPoll, 3500); });
+  }
+  function renderChips(list) {
+    $('l-count').textContent = list.length;
+    var box = $('l-chips'), fresh = false;
+    box.innerHTML = '';
+    list.slice().reverse().forEach(function (p) {
+      var s = split(p.name), c = el('span', 'chip' + (p.id === me.pid ? ' me' : ''), s.av + ' ' + s.nm);
+      if (S.chipsSeen[p.id]) c.style.animation = 'none'; else { S.chipsSeen[p.id] = 1; fresh = true; }
+      box.appendChild(c);
+    });
+    if (fresh) sfx.pop();
   }
 
   // ---------- ingresso ----------
   $('f-join').addEventListener('submit', function (e) {
-    e.preventDefault();
+    e.preventDefault(); sfx.unlock();
     var name = $('in-name').value.trim(), st = $('in-store').value.trim();
     if (!name || !st) { $('e-join').textContent = 'Scrivi il tuo nome e il negozio.'; return; }
     $('b-join').disabled = true; $('e-join').textContent = '';
-    api({ action: 'join', name: name, store: st }).then(function (r) {
+    var full = av + ' ' + name;
+    api({ action: 'join', name: full, store: st }).then(function (r) {
       $('b-join').disabled = false;
       if (!r.ok) { $('e-join').textContent = r.error; return; }
-      me = { pid: r.pid, session: r.session, name: name, store: st }; store.set('me', me);
-      S.answered = {}; S.score = 0; boot();
+      me = { pid: r.pid, session: r.session, name: full, store: st }; store.set('me', me);
+      S.answered = {}; S.score = 0; S.streak = 0; sfx.correct(); boot();
     }).catch(function () { $('b-join').disabled = false; $('e-join').textContent = 'Connessione assente. Riprova tra un attimo.'; });
   });
 
   // ---------- domande ----------
   function nextQuestion() {
+    closeOverlay();
     var i = 0;
     while (i < S.questions.length && S.answered[i]) i++;
     if (i >= S.questions.length) { finish(false); return; }
@@ -155,27 +247,36 @@
 
   function renderQ(q, i) {
     show('s-q');
-    $('q-kpi').textContent = q.kpi; $('q-kpi').setAttribute('data-k', q.kpi);
-    $('q-num').textContent = (i + 1) + ' / ' + S.questions.length;
+    $('sb-score').textContent = S.score + ' pt';
+    $('q-kpi').textContent = q.kpi;
+    $('q-n').textContent = i + 1; $('q-tot').textContent = S.questions.length;
     $('q-text').textContent = q.q;
-    $('q-verdict').hidden = true; $('b-next').hidden = true;
+    $('q-sec').textContent = q.t; $('q-arc').style.strokeDashoffset = 0; $('q-clock').classList.remove('low');
+    $('q-wait').hidden = true; $('q-ready').hidden = false;
     var box = $('q-ans'); box.innerHTML = ''; box.classList.remove('locked');
-    q.a.forEach(function (txt, k) {
-      var b = document.createElement('button'); b.className = 'ans'; b.type = 'button';
-      var sh = document.createElement('span'); sh.className = 'sh'; sh.textContent = SHAPES[k]; sh.setAttribute('aria-hidden', 'true');
-      var t = document.createElement('span'); t.textContent = txt;
-      b.appendChild(sh); b.appendChild(t);
-      b.addEventListener('click', function () { answer(k); });
-      box.appendChild(b);
-    });
+    S.busy = true; clearInterval(S.timer);
+    setTimeout(function () {
+      if (S.idx !== i) return;
+      $('q-ready').hidden = true;
+      q.a.forEach(function (txt, k) {
+        var b = el('button', 'ans'); b.type = 'button';
+        var sh = el('span', 'sh', SHAPES[k]); sh.setAttribute('aria-hidden', 'true');
+        b.appendChild(sh); b.appendChild(el('span', '', txt));
+        b.addEventListener('click', function () { answer(k); });
+        box.appendChild(b);
+      });
+      startTimer(q);
+    }, 1800);
+  }
+
+  function startTimer(q) {
     S.busy = false; S.t0 = performance.now();
-    var limit = q.t * 1000, bar = $('q-bar'), tm = $('q-timer');
-    tm.classList.remove('low');
-    clearInterval(S.timer);
+    var limit = q.t * 1000, lastSec = q.t;
     S.timer = setInterval(function () {
-      var left = Math.max(0, 1 - (performance.now() - S.t0) / limit);
-      bar.style.transform = 'scaleX(' + left + ')';
-      tm.classList.toggle('low', left < 0.25);
+      var el_ = performance.now() - S.t0, left = Math.max(0, limit - el_), sec = Math.ceil(left / 1000);
+      $('q-arc').style.strokeDashoffset = (169.6 * (1 - left / limit)).toFixed(1);
+      if (sec !== lastSec) { lastSec = sec; $('q-sec').textContent = sec; if (sec <= 5 && sec > 0) sfx.tick(); }
+      $('q-clock').classList.toggle('low', sec <= 5);
       if (left <= 0) answer(-1);
     }, 100);
   }
@@ -184,7 +285,8 @@
     if (S.busy) return; S.busy = true; clearInterval(S.timer);
     var ms = Math.round(performance.now() - S.t0), i = S.idx, btns = $('q-ans').children;
     $('q-ans').classList.add('locked');
-    for (var j = 0; j < btns.length; j++) { btns[j].disabled = true; if (j !== k) btns[j].classList.add('dim'); }
+    for (var j = 0; j < btns.length; j++) { btns[j].disabled = true; if (j === k) btns[j].classList.add('picked'); else btns[j].classList.add('dim'); }
+    $('q-wait').hidden = false;
     send(i, k, ms, 0);
   }
 
@@ -193,64 +295,91 @@
       netOk();
       if (!r.ok) {
         if (/chiuso/.test(r.error)) { finish(true); return; }
-        $('e-global').textContent = r.error; if (/rientra/.test(r.error)) { store.del('me'); setTimeout(function () { location.reload(); }, 1500); } return;
+        $('e-global').textContent = r.error;
+        if (/rientra/.test(r.error)) { store.del('me'); setTimeout(function () { location.reload(); }, 1500); }
+        return;
       }
       S.answered[i] = true; S.score = r.score;
-      var btns = $('q-ans').children;
-      btns[r.correct].classList.add('right'); btns[r.correct].classList.remove('dim');
-      if (k >= 0 && k !== r.correct) btns[k].classList.add('wrong');
-      var v = $('q-verdict'); v.hidden = false;
       var ok = k === r.correct;
-      v.className = 'verdict ' + (ok ? 'ok' : 'ko');
-      v.innerHTML = '';
-      var a = document.createElement('span'); a.textContent = ok ? 'Risposta giusta!' : (k < 0 ? 'Tempo scaduto' : 'Non è quella giusta');
-      var b = document.createElement('span'); b.className = 'pts'; b.textContent = (ok ? '+' + r.points : '+0') + ' · ' + r.score + ' pt';
-      v.appendChild(a); v.appendChild(b);
-      var last = Object.keys(S.answered).length >= S.questions.length;
-      $('b-next').textContent = last ? 'Vedi il risultato' : 'Prossima domanda';
-      $('b-next').hidden = false; $('b-next').focus();
-    }).catch(function () {
-      netErr();
-      if (tries < 4) setTimeout(function () { send(i, k, ms, tries + 1); }, 1500);
-    });
+      S.streak = ok ? S.streak + 1 : 0;
+      result(ok, k < 0, r, i);
+    }).catch(function () { netErr(); if (tries < 4) setTimeout(function () { send(i, k, ms, tries + 1); }, 1500); });
   }
-  $('b-next').addEventListener('click', nextQuestion);
+
+  function result(ok, timeout, r, i) {
+    var q = S.questions[i], last = Object.keys(S.answered).length >= S.questions.length;
+    var nodes = [
+      el('div', 'ov-icon', ok ? '✔' : (timeout ? '⏰' : '✖')),
+      el('div', 'ov-title', ok ? 'Giusta!' : (timeout ? 'Tempo scaduto!' : 'Ops!')),
+      el('div', 'ov-pts', ok ? '+' + r.points : '+0')
+    ];
+    if (ok && S.streak >= 2) nodes.push(el('div', 'ov-streak', '🔥 ' + S.streak + ' di fila!'));
+    if (!ok) nodes.push(el('p', 'ov-sub', 'La risposta giusta era: ' + q.a[r.correct]));
+    nodes.push(el('p', 'ov-sub', ok ? pick(CHEER_OK) : pick(CHEER_KO)));
+    var rank = el('p', 'ov-sub', ''); rank.style.fontWeight = '800'; nodes.push(rank);
+    var b = el('button', 'btn', last ? 'Vedi il risultato' : 'Prossima domanda'); b.type = 'button';
+    b.addEventListener('click', nextQuestion); nodes.push(b);
+    overlay(ok ? 'ok' : 'ko', nodes);
+    if (ok) sfx.correct(); else sfx.wrong();
+    b.focus();
+    api({ action: 'board' }).then(function (bd) {
+      var pos = bd.list.findIndex(function (p) { return p.id === me.pid; });
+      if (pos >= 0) rank.textContent = 'Sei al ' + (pos + 1) + '° posto su ' + bd.list.length + ' · ' + S.score + ' pt';
+    }).catch(function () {});
+  }
 
   // ---------- fine e classifica ----------
   function finish(closed) {
-    clearInterval(S.timer); show('s-end');
-    $('end-score').textContent = S.score;
+    clearInterval(S.timer); closeOverlay(); show('s-end');
+    $('end-score').textContent = me ? S.score : '–';
     $('end-title').textContent = closed ? 'Il gioco è chiuso' : 'Hai finito!';
     $('end-sub').textContent = 'punti totali';
-    loadBoard(true);
+    if (me && !closed) { sfx.fanfare(); }
+    loadBoard();
   }
 
-  function loadBoard(loop) {
+  function loadBoard() {
     api({ action: 'board' }).then(function (b) {
       netOk(); renderBoard(b);
       if (me) {
         var pos = b.list.findIndex(function (p) { return p.id === me.pid; });
-        if (pos >= 0) $('end-sub').textContent = 'punti totali · sei ' + (pos + 1) + 'ª su ' + b.list.length;
+        if (pos >= 0) $('end-sub').textContent = 'punti totali · sei ' + (pos + 1) + '° posto su ' + b.list.length;
       }
-      if (b.status === 'chiuso') $('end-title').textContent = 'Classifica finale';
-      if (loop && b.status !== 'chiuso') poll(function () { loadBoard(true); }, 4000);
-      if (b.status === 'attesa' && me) { store.del('me'); location.reload(); }
-    }).catch(function () { netErr(); if (loop) poll(function () { loadBoard(true); }, 5000); });
+      if (b.status === 'chiuso') {
+        $('end-title').textContent = 'Classifica finale'; $('end-wait').hidden = true;
+        if (!S.podiumShown) { S.podiumShown = true; renderPodium(b.list); FX.confetti(4500); sfx.fanfare(); }
+        return;
+      }
+      if (b.status === 'attesa' && me) { store.del('me'); location.reload(); return; }
+      poll(loadBoard, 4000);
+    }).catch(function () { netErr(); poll(loadBoard, 5000); });
+  }
+
+  function renderPodium(list) {
+    var box = $('podium'); box.innerHTML = '';
+    [1, 0, 2].forEach(function (i) {
+      var p = list[i], s = el('div', 'step s' + (i + 1));
+      if (p) {
+        var sp = split(p.name);
+        s.appendChild(el('div', 'av-big', sp.av)); s.appendChild(el('div', 'nm', sp.nm)); s.appendChild(el('div', 'st', p.store));
+        var blk = el('div', 'blk'); blk.appendChild(el('span', 'n', String(i + 1))); blk.appendChild(el('span', 'p', p.score + ' pt')); s.appendChild(blk);
+      }
+      box.appendChild(s);
+    });
+    $('podium-box').hidden = list.length === 0;
   }
 
   function renderBoard(b) {
     var ol = $('board'); ol.innerHTML = '';
     $('board-empty').hidden = b.list.length > 0;
-    b.list.slice(0, 15).forEach(function (p, i) {
-      var li = document.createElement('li'); if (me && p.id === me.pid) li.className = 'me';
-      var pos = document.createElement('span'); pos.className = 'pos'; pos.textContent = i + 1;
-      var who = document.createElement('span'); who.className = 'who';
-      var n = document.createElement('b'); n.textContent = p.name;
-      var s = document.createElement('span'); s.textContent = p.store;
-      who.appendChild(n); who.appendChild(s);
-      var pts = document.createElement('span'); pts.className = 'pts'; pts.textContent = p.score;
-      var sm = document.createElement('small'); sm.textContent = p.done + '/' + b.total; pts.appendChild(sm);
-      li.appendChild(pos); li.appendChild(who); li.appendChild(pts); ol.appendChild(li);
+    b.list.slice(0, 20).forEach(function (p, i) {
+      var sp = split(p.name), li = el('li', me && p.id === me.pid ? 'me' : '');
+      li.style.animationDelay = (i * 0.03) + 's';
+      li.appendChild(el('span', 'pos', String(i + 1)));
+      li.appendChild(el('span', 'avs', sp.av));
+      var who = el('span', 'who'); who.appendChild(el('b', '', sp.nm)); who.appendChild(el('span', '', p.store)); li.appendChild(who);
+      var pts = el('span', 'pts', String(p.score)); pts.appendChild(el('small', '', p.done + '/' + b.total)); li.appendChild(pts);
+      ol.appendChild(li);
     });
   }
 

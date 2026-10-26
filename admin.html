@@ -4,43 +4,58 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>Regia Quiz KPI</title>
+<title>Regia Quiz KPI · Fiorella Rubino</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,700&family=Libre+Franklin:wght@400;600;700;800&display=swap">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,700;1,6..96,700&family=Libre+Franklin:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="style.css?v=2">
 <style>
-  .status { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; padding: 6px 12px; border-radius: 999px; background: var(--line); }
+  .status { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; padding: 6px 14px; border-radius: 999px; background: var(--cipria); align-self: flex-start; }
   .status[data-s="in corso"] { background: var(--ok-bg); color: var(--ok); }
-  .status[data-s="chiuso"] { background: var(--ko-bg); color: var(--ko); }
-  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
-  .stats { display: flex; flex-wrap: wrap; gap: 24px; }
-  .stat b { display: block; font-family: var(--display); font-size: 40px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .status[data-s="chiuso"] { background: var(--ink); color: #fff; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .stats { display: flex; flex-wrap: wrap; gap: 28px; }
+  .stat b { display: block; font-family: var(--display); font-size: 44px; line-height: 1; font-variant-numeric: tabular-nums; color: var(--lampone); }
   .stat span { font-size: 13px; color: var(--muted); }
-  .link { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-  .link code { flex: 1 1 240px; min-width: 0; overflow-wrap: anywhere; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 14px; }
-  .link .btn { width: auto; padding: 10px 16px; font-size: 15px; }
+  .join { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: center; }
+  .qr { background: #fff; padding: 8px; border-radius: 12px; border: 1px solid var(--line); width: 148px; height: 148px; }
+  .qr img, .qr canvas { width: 100% !important; height: auto !important; display: block; }
+  .link code { display: block; overflow-wrap: anywhere; font-size: 14px; font-weight: 700; }
+  .toggles { display: flex; gap: 8px; }
   .confirm { border: 2px solid var(--ko); }
-  .board.big li { padding: 14px 18px; }
+  .stage-title { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .lobby-big { min-height: 320px; display: flex; flex-direction: column; gap: 18px; align-items: center; justify-content: center; text-align: center; }
+  .lobby-big .chips .chip { font-size: 18px; padding: 10px 16px; }
+  .board.big li { padding: 14px 18px; grid-template-columns: 44px 44px minmax(0, 1fr) auto; }
   .board.big .who b { font-size: 19px; }
   .board.big .pts { font-size: 22px; }
-  .bar { height: 5px; background: var(--line); border-radius: 9px; overflow: hidden; margin-top: 6px; }
-  .bar i { display: block; height: 100%; background: var(--navy); }
-  @media (min-width: 900px) { .grid2 { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 22px; align-items: start; } }
+  .bar { height: 6px; background: var(--line); border-radius: 9px; overflow: hidden; margin-top: 6px; }
+  .bar i { display: block; height: 100%; background: var(--lampone); transition: width .6s ease; }
+  .podium.big .step .av-big { font-size: 64px; }
+  .podium.big .step .nm { font-size: 20px; }
+  .podium.big .step.s1 .blk { height: 230px; } .podium.big .step.s2 .blk { height: 170px; } .podium.big .step.s3 .blk { height: 120px; }
+  .podium.big .step .blk .n { font-size: 54px; }
+  .podium.big .step .blk .p { font-size: 18px; }
+  @media (min-width: 960px) { .grid2 { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 24px; align-items: start; } }
 </style>
-<script src="config.js"></script>
+<script src="config.js?v=2"></script>
+<script src="fx.js?v=2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
 <main class="wrap wide">
   <header class="brand">
-    <span class="mf">Regia Quiz KPI</span>
-    <span class="sub">Key Location<br>KPI Training Journey</span>
+    <div class="logo"><b>Fiorella Rubino</b><span>Regia · Quiz finale KPI</span></div>
+    <div class="toggles">
+      <button class="icon-btn" id="b-music" type="button" aria-label="Musica della sala d'attesa">🎵</button>
+      <button class="icon-btn" id="b-mute" type="button"></button>
+    </div>
   </header>
 
   <form id="s-pin" class="card" style="max-width:420px" novalidate>
     <h2>Accesso regia</h2>
     <div><label for="in-pin">PIN</label><input id="in-pin" type="password" inputmode="numeric" autocomplete="off"></div>
-    <button class="btn" type="submit">Entra</button>
+    <button class="btn pink" type="submit">Entra</button>
     <p class="err" id="e-pin" role="alert"></p>
   </form>
 
@@ -50,15 +65,15 @@
         <span class="eyebrow">Stato del gioco</span>
         <span class="status" id="st" data-s="attesa">In attesa</span>
         <div class="stats">
-          <div class="stat"><b id="n-players">0</b><span>partecipanti</span></div>
+          <div class="stat"><b id="n-players">0</b><span>in gioco</span></div>
           <div class="stat"><b id="n-done">0</b><span>hanno finito</span></div>
         </div>
       </div>
       <div class="card">
         <span class="eyebrow">Comandi</span>
         <div class="controls">
-          <button class="btn go" id="b-start">Avvia il quiz</button>
-          <button class="btn ghost" id="b-close">Chiudi il gioco</button>
+          <button class="btn pink" id="b-start">Avvia il quiz</button>
+          <button class="btn ghost" id="b-close">Chiudi e premia</button>
         </div>
         <button class="btn ghost" id="b-reset" style="font-size:14px;padding:10px">Nuova partita (azzera)</button>
         <div id="confirm" class="card confirm" hidden>
@@ -68,31 +83,59 @@
         <p class="err" id="e-cmd" role="alert"></p>
       </div>
       <div class="card">
-        <span class="eyebrow">Link per le ragazze</span>
-        <div class="link"><code id="player-link"></code><button class="btn ghost" id="b-copy" type="button">Copia</button></div>
+        <span class="eyebrow">Entra dal telefono</span>
+        <div class="join">
+          <div class="qr" id="qr" aria-label="Codice QR del link al quiz"></div>
+          <div class="link" style="display:flex;flex-direction:column;gap:10px;min-width:0"><code id="player-link"></code><button class="btn ghost" id="b-copy" type="button" style="padding:10px;font-size:15px">Copia link</button></div>
+        </div>
       </div>
     </aside>
 
-    <section>
-      <div class="row" style="justify-content:space-between"><h1 style="margin:0">Classifica</h1><span class="lead" id="upd"></span></div>
-      <ol class="board big" id="board" style="margin-top:14px"></ol>
-      <p class="empty" id="board-empty">Nessuna partecipante ancora. Condividi il link: i nomi appariranno qui man mano che entrano.</p>
+    <section class="card" id="stage">
+      <!-- sala d'attesa -->
+      <div id="v-lobby" class="lobby-big">
+        <span class="eyebrow">Sala d'attesa</span>
+        <h1>Inquadra il QR e <em>entra in gioco</em></h1>
+        <p class="lead" id="lobby-count">Nessuna ragazza ancora in sala.</p>
+        <div class="chips" id="chips"></div>
+      </div>
+      <!-- classifica live -->
+      <div id="v-live" hidden>
+        <div class="stage-title"><h1 style="font-size:40px">Classifica <em>live</em></h1><span class="lead" id="upd"></span></div>
+        <ol class="board big" id="board" style="margin-top:14px"></ol>
+      </div>
+      <!-- podio -->
+      <div id="v-podium" hidden>
+        <div class="stage-title"><h1 style="font-size:40px">Il <em>podio</em></h1><button class="btn ghost" id="b-replay" type="button" style="width:auto;padding:10px 16px;font-size:14px">Rivedi la premiazione</button></div>
+        <div class="podium big" id="podium" style="margin-top:18px"></div>
+        <h2 style="margin-top:26px">Classifica completa</h2>
+        <ol class="board" id="board-final" style="margin-top:10px"></ol>
+      </div>
     </section>
   </div>
 </main>
 
 <script>
 (function () {
-  var API = window.QUIZ_API, $ = function (id) { return document.getElementById(id); };
-  var pin = null, pollT = null;
+  var API = window.QUIZ_API, FX = window.FX, sfx = FX.sfx, $ = function (id) { return document.getElementById(id); };
+  var pin = null, pollT = null, lastStatus = null, seen = {}, last = null, musicOn = false;
   try { pin = sessionStorage.getItem('quizkpi_pin'); } catch (e) {}
   var LABEL = { 'attesa': 'In attesa', 'in corso': 'Quiz in corso', 'chiuso': 'Gioco chiuso' };
 
+  FX.bindMute($('b-mute'));
+  $('b-mute').onchange = function () { if (sfx.isMuted()) setMusic(false); };
+  function setMusic(on) { musicOn = on && !sfx.isMuted(); sfx.music(musicOn); $('b-music').style.background = musicOn ? 'var(--cipria)' : ''; }
+  $('b-music').addEventListener('click', function () { sfx.unlock(); setMusic(!musicOn); });
+
+  function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+  function split(n) { n = String(n || ''); var i = n.indexOf(' '); if (i > 0 && i <= 4 && /[^\w\sÀ-ÿ'.-]/.test(n.slice(0, i))) return { av: n.slice(0, i), nm: n.slice(i + 1) }; return { av: '🙂', nm: n }; }
+
   var link = location.href.replace(/admin\.html.*$/, '');
   $('player-link').textContent = link;
+  try { new QRCode($('qr'), { text: link, width: 256, height: 256, colorDark: '#1c1a1b', colorLight: '#ffffff' }); } catch (e) { $('qr').hidden = true; }
   $('b-copy').addEventListener('click', function () {
     var b = this;
-    navigator.clipboard.writeText(link).then(function () { b.textContent = 'Copiato'; setTimeout(function () { b.textContent = 'Copia'; }, 1500); })
+    navigator.clipboard.writeText(link).then(function () { b.textContent = 'Copiato!'; setTimeout(function () { b.textContent = 'Copia link'; }, 1500); })
       .catch(function () { var r = document.createRange(); r.selectNodeContents($('player-link')); var s = getSelection(); s.removeAllRanges(); s.addRange(r); });
   });
 
@@ -101,45 +144,86 @@
     return fetch(url, { cache: 'no-store' }).then(function (r) { return r.json(); });
   }
 
+  function boardItem(p, i, total, big) {
+    var sp = split(p.name), li = el('li');
+    li.appendChild(el('span', 'pos', String(i + 1)));
+    li.appendChild(el('span', 'avs', sp.av));
+    var who = el('span', 'who'); who.appendChild(el('b', '', sp.nm));
+    who.appendChild(el('span', '', p.store + ' · ' + p.right + ' giuste su ' + p.done));
+    if (big) { var bar = el('div', 'bar'), f = el('i'); f.style.width = Math.round(100 * p.done / total) + '%'; bar.appendChild(f); who.appendChild(bar); }
+    li.appendChild(who);
+    var pts = el('span', 'pts', String(p.score)); pts.appendChild(el('small', '', p.done + '/' + total)); li.appendChild(pts);
+    li.style.animation = 'none';
+    return li;
+  }
+
   function render(b) {
+    last = b;
     var st = $('st'); st.dataset.s = b.status; st.textContent = LABEL[b.status] || b.status;
-    $('b-start').disabled = b.status === 'in corso';
+    $('b-start').disabled = b.status !== 'attesa';
     $('b-close').disabled = b.status !== 'in corso';
     $('n-players').textContent = b.list.length;
     $('n-done').textContent = b.list.filter(function (p) { return p.done >= b.total; }).length;
-    $('upd').textContent = 'aggiornata alle ' + new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    var ol = $('board'); ol.innerHTML = '';
-    $('board-empty').hidden = b.list.length > 0;
-    b.list.forEach(function (p, i) {
-      var li = document.createElement('li');
-      var pos = document.createElement('span'); pos.className = 'pos'; pos.textContent = i + 1;
-      var who = document.createElement('span'); who.className = 'who';
-      var n = document.createElement('b'); n.textContent = p.name;
-      var s = document.createElement('span'); s.textContent = p.store + ' · ' + p.right + ' giuste su ' + p.done;
-      var bar = document.createElement('div'); bar.className = 'bar';
-      var fill = document.createElement('i'); fill.style.width = Math.round(100 * p.done / b.total) + '%'; bar.appendChild(fill);
-      who.appendChild(n); who.appendChild(s); who.appendChild(bar);
-      var pts = document.createElement('span'); pts.className = 'pts'; pts.textContent = p.score;
-      var sm = document.createElement('small'); sm.textContent = p.done + '/' + b.total; pts.appendChild(sm);
-      li.appendChild(pos); li.appendChild(who); li.appendChild(pts); ol.appendChild(li);
-    });
+
+    $('v-lobby').hidden = b.status !== 'attesa';
+    $('v-live').hidden = b.status !== 'in corso';
+    $('v-podium').hidden = b.status !== 'chiuso';
+
+    if (b.status === 'attesa') {
+      $('lobby-count').textContent = b.list.length ? b.list.length + (b.list.length === 1 ? ' ragazza in sala' : ' ragazze in sala') : 'Nessuna ragazza ancora in sala.';
+      var box = $('chips'), fresh = false; box.innerHTML = '';
+      b.list.slice().reverse().forEach(function (p) {
+        var sp = split(p.name), c = el('span', 'chip', sp.av + ' ' + sp.nm);
+        if (seen[p.id]) c.style.animation = 'none'; else { seen[p.id] = 1; fresh = true; }
+        box.appendChild(c);
+      });
+      if (fresh && lastStatus === 'attesa') sfx.pop();
+    }
+    if (b.status === 'in corso') {
+      $('upd').textContent = 'aggiornata alle ' + new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      var ol = $('board'); ol.innerHTML = '';
+      b.list.forEach(function (p, i) { ol.appendChild(boardItem(p, i, b.total, true)); });
+      if (!b.list.length) ol.appendChild(el('p', 'empty', 'Nessuna partecipante.'));
+    }
+    if (b.status === 'chiuso' && lastStatus !== 'chiuso') ceremony(b);
+    if (b.status !== 'attesa' && lastStatus === 'attesa') setMusic(false);
+    lastStatus = b.status;
   }
+
+  function ceremony(b) {
+    var box = $('podium'); box.innerHTML = '';
+    [1, 0, 2].forEach(function (i) {
+      var p = b.list[i], s = el('div', 'step s' + (i + 1));
+      if (p) {
+        var sp = split(p.name);
+        s.appendChild(el('div', 'av-big', sp.av)); s.appendChild(el('div', 'nm', sp.nm)); s.appendChild(el('div', 'st', p.store));
+        var blk = el('div', 'blk'); blk.appendChild(el('span', 'n', String(i + 1))); blk.appendChild(el('span', 'p', p.score + ' pt')); s.appendChild(blk);
+      }
+      box.appendChild(s);
+    });
+    var ol = $('board-final'); ol.innerHTML = '';
+    b.list.forEach(function (p, i) { ol.appendChild(boardItem(p, i, b.total, false)); });
+    if (lastStatus !== null) { sfx.fanfare(); setTimeout(function () { FX.confetti(6000); }, 900); }
+  }
+  $('b-replay').addEventListener('click', function () { if (last) { lastStatus = 'x'; ceremony(last); lastStatus = 'chiuso'; } });
 
   function refresh() {
     clearTimeout(pollT);
     api('').then(function (b) {
       if (!b.ok) { logout(b.error); return; }
       $('e-cmd').textContent = ''; render(b);
-      pollT = setTimeout(refresh, 3000);
+      pollT = setTimeout(refresh, 2500);
     }).catch(function () { $('e-cmd').textContent = 'Connessione assente: riprovo…'; pollT = setTimeout(refresh, 4000); });
   }
 
   function cmd(c) {
-    $('e-cmd').textContent = '';
+    $('e-cmd').textContent = ''; sfx.unlock();
     ['b-start', 'b-close', 'b-reset', 'b-reset-ok'].forEach(function (id) { $(id).disabled = true; });
     api(c).then(function (b) {
       $('b-reset').disabled = false; $('b-reset-ok').disabled = false;
       if (!b.ok) { $('e-cmd').textContent = b.error; return; }
+      if (c === 'start') sfx.go();
+      if (c === 'reset') { seen = {}; }
       $('confirm').hidden = true; render(b); refresh();
     }).catch(function () { $('b-reset').disabled = false; $('b-reset-ok').disabled = false; $('e-cmd').textContent = 'Comando non arrivato: controlla la connessione e riprova.'; refresh(); });
   }
@@ -148,11 +232,10 @@
     try { sessionStorage.removeItem('quizkpi_pin'); } catch (e) {}
     pin = null; $('s-main').hidden = true; $('s-pin').hidden = false; $('e-pin').textContent = msg || '';
   }
-
   function enter() { $('s-pin').hidden = true; $('s-main').hidden = false; refresh(); }
 
   $('s-pin').addEventListener('submit', function (e) {
-    e.preventDefault();
+    e.preventDefault(); sfx.unlock();
     pin = $('in-pin').value.trim(); if (!pin) return;
     if (!API || API.indexOf('http') !== 0) { $('e-pin').textContent = 'Manca l\'URL di Apps Script nel file config.js.'; return; }
     api('').then(function (b) {
