@@ -46,6 +46,7 @@
       <div class="big-av" id="l-av-big"></div>
       <h1 style="font-size:34px">Ci sei, <em id="l-name"></em>!</h1>
       <p class="lead">Aspettiamo il via di Marilena e Lorenzo<span class="dots"></span></p>
+      <p id="l-music" class="lead" style="font-size:13px" hidden>🎵 Non senti la musica? Tocca lo schermo e alza il volume.</p>
       <div class="kpis"><span class="kpi">CR</span><span class="kpi">ASP</span><span class="kpi">ATV</span><span class="kpi">UPT</span><span class="kpi">MS</span><span class="kpi">SPH</span></div>
     </div>
     <div class="card" style="margin-top:14px">
@@ -184,6 +185,7 @@
     var p = split(me.name);
     $('sb-name').textContent = p.av + ' ' + p.nm;
     if (st.status === 'attesa') { enterLobby(); return; }
+    lobbyMusic(false);
     S.questions = st.questions;
     if (st.status === 'chiuso') { finish(true); return; }
     if (!Object.keys(S.answered).length && !S.counted) { S.counted = true; show('s-lobby'); countdown(nextQuestion); }
@@ -191,11 +193,16 @@
   }
 
   // ---------- sala d'attesa ----------
+  var inLobby = false;
+  function lobbyMusic(on) { inLobby = on; sfx.music(on && !sfx.isMuted()); $('l-music').hidden = !on || sfx.isMuted(); }
+  // il telefono fa partire l'audio solo dopo un tocco: al primo tocco riavviamo la musica
+  document.addEventListener('pointerdown', function () { sfx.unlock(); if (inLobby && !sfx.isMuted()) sfx.music(true); });
+  $('b-mute').onchange = function () { if (inLobby) lobbyMusic(true); };
   var tipI = Math.floor(Math.random() * TIPS.length), tipT = null;
   function enterLobby() {
     var p = split(me.name);
     $('l-av-big').textContent = p.av; $('l-name').textContent = p.nm.split(' ')[0];
-    show('s-lobby');
+    show('s-lobby'); lobbyMusic(true);
     clearInterval(tipT); $('l-tip').textContent = TIPS[tipI % TIPS.length];
     tipT = setInterval(function () { tipI++; $('l-tip').textContent = TIPS[tipI % TIPS.length]; }, 5000);
     lobbyPoll();
@@ -203,7 +210,7 @@
   function lobbyPoll() {
     Promise.all([api({ action: 'state', pid: me.pid }), api({ action: 'board' }).catch(function () { return null; })]).then(function (r) {
       var st = r[0], b = r[1]; netOk();
-      if (st.session !== me.session) { me = null; store.del('me'); show('s-join'); clearInterval(tipT); return; }
+      if (st.session !== me.session) { me = null; store.del('me'); show('s-join'); clearInterval(tipT); lobbyMusic(false); return; }
       if (b) renderChips(b.list);
       if (st.status === 'attesa') { poll(lobbyPoll, 2500); return; }
       clearInterval(tipT); applyState(st);
